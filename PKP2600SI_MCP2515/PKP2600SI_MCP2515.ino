@@ -45,12 +45,12 @@ void setup() {
   keypad.setKeyColor(PKP_KEY_11, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_12, colors1, blinks1);
 
-  keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_MOMENTARY);
+  keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_2, BUTTON_MODE_MOMENTARY);
-  keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_MOMENTARY);
-  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_MOMENTARY);
-  keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_MOMENTARY);
-  keypad.setKeyMode(PKP_KEY_6, BUTTON_MODE_MOMENTARY);
+  keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_TOGGLE);
+  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_TOGGLE);
+  keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_TOGGLE);
+  keypad.setKeyMode(PKP_KEY_6, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_7, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_TOGGLE);
