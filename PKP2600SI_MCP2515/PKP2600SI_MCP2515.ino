@@ -28,20 +28,17 @@ void setup() {
   //Set Key color and blink states
   uint8_t colors1[4] = {PKP_KEY_BLANK,PKP_KEY_RED,PKP_KEY_BLANK,PKP_KEY_BLANK}; //array for the 4 possible button states' respective colors
   uint8_t blinks1[4] = {PKP_KEY_BLANK,PKP_KEY_BLANK,PKP_KEY_BLANK,PKP_KEY_BLANK};
+  colors1[1] = PKP_KEY_GREEN;
   keypad.setKeyColor(PKP_KEY_1, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_2, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_3, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_4, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_5, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_6, colors1, blinks1);
-  colors1[1] = PKP_KEY_GREEN;
   keypad.setKeyColor(PKP_KEY_7, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_8, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_9, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_10, colors1, blinks1);
-  colors1[1] = PKP_KEY_RED;
-  colors1[2] = PKP_KEY_GREEN;
-  colors1[3] = PKP_KEY_BLUE;  
   keypad.setKeyColor(PKP_KEY_11, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_12, colors1, blinks1);
 
