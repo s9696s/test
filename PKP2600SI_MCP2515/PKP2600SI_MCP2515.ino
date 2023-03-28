@@ -10,7 +10,7 @@
 #define CS_PIN 10
 #define INTERRUPT_PIN 3
 #define KEYPAD_BASE_ID 0x15
-#define ENABLE_PASSCODE true
+#define ENABLE_PASSCODE false
 
 MCP2515 mcp2515(CS_PIN);
 CANKeypad keypad(mcp2515, INTERRUPT_PIN, KEYPAD_BASE_ID, ENABLE_PASSCODE); 
@@ -55,10 +55,10 @@ void setup() {
   keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_TOGGLE);
   keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_TOGGLE);
-  keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_CYCLE3);
-  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_CYCLE4);
+  keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_TOGGLE);
+  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_TOGGLE);
 
-  uint8_t defaultStates[12] = {0,0,0,0,0,0,1,1,0,0,1,2};
+  uint8_t defaultStates[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
   keypad.setDefaultButtonStates(defaultStates);
 
   keypad.begin(CAN_250KBPS, MCP_8MHZ); //These are MCP settings to be passed  
@@ -66,30 +66,11 @@ void setup() {
 
 //----------------------------------------------------------------------------
 
-unsigned long currentMillis;
-unsigned long key9OnTime = 0;
-bool lastKey9State;
-
 void loop() {
-    currentMillis = millis();
-  
    keypad.process(); //must have this in main loop.  
 
    if(keypad.buttonState[PKP_KEY_1] == 1){
       //do stuff
    }
-
-   //if key 9 is pressed, turn off after 2 seconds
-   if(keypad.buttonState[PKP_KEY_9] == 1 && lastKey9State == 0){
-    key9OnTime = currentMillis;
-   }
-   lastKey9State = keypad.buttonState[PKP_KEY_9];
-   if(lastKey9State==1 && (currentMillis-key9OnTime)>2000){
-    keypad.buttonState[PKP_KEY_9]=0;
-    keypad.updateKeypad();
-   }
-   
-
-  
 
 }
