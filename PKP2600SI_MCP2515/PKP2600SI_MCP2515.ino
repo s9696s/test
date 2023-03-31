@@ -69,11 +69,21 @@ void setup() {
 
 //----------------------------------------------------------------------------
 
+
 void loop() {
-   keypad.process(); //must have this in main loop.  
+  keypad.process(); //must have this in main loop.
 
-   if(keypad.buttonState[PKP_KEY_1] == 1){
-      //do stuff
-   }
+  uint8_t data[5] = {0}; // initialize the data array
 
+  // set the button states in the data array
+  for(int i=0; i<12; i++) {
+    data[i/8] |= (keypad.buttonState[i+1] << (i%8));
+  }
+
+  // send the data over the CAN bus
+  can_frame frame;
+  frame.can_id = 0x200;
+  frame.can_dlc = 5;
+  memcpy(frame.data, data, 5);
+  mcp2515.sendMessage(&frame);
 }
