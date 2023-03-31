@@ -530,4 +530,3 @@ void CANKeypad::updateKeypad()
   keypadWriteBlink();
   sendKeysStatus();
 }
-
