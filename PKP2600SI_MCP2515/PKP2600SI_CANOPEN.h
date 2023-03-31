@@ -12,6 +12,9 @@
 #ifndef mcp2515_h
 #include <mcp2515.h>
 #endif
+//..new
+#include <CAN.h>
+//..new
 
 #ifndef PKP2600_CANOPEN_h
 #define PKP2600_CANOPEN_h
