@@ -48,18 +48,18 @@ void setup() {
   colors1[3] = PKP_KEY_BLUE;   
   keypad.setKeyColor(PKP_KEY_12, colors1, blinks1);
 
-  keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_TOGGLE);        // ... master on/off 
+  keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_MOMENTARY);        // ... master on/off 
   keypad.setKeyMode(PKP_KEY_2, BUTTON_MODE_MOMENTARY);     // ... Starter
-  keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_TOGGLE);        // ... Light
-  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_TOGGLE);        // ... LED
-  keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_TOGGLE);        // ... FAN
-  keypad.setKeyMode(PKP_KEY_6, BUTTON_MODE_TOGGLE);        // ... AUX
-  keypad.setKeyMode(PKP_KEY_7, BUTTON_MODE_TOGGLE);        // ... Dash LOG
-  keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_TOGGLE);        // .. Radio
-  keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_TOGGLE);        // .. AIR
-  keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_CYCLE3);       // .. Boost
+  keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_MOMENTARY);        // ... Light
+  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_MOMENTARY);        // ... LED
+  keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_MOMENTARY);        // ... FAN
+  keypad.setKeyMode(PKP_KEY_6, BUTTON_MODE_MOMENTARY);        // ... AUX
+  keypad.setKeyMode(PKP_KEY_7, BUTTON_MODE_MOMENTARY);        // ... Dash LOG
+  keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_MOMENTARY);        // .. Radio
+  keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_MOMENTARY);        // .. AIR
+  keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_MOMENTARY);       // .. Boost
   keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_MOMENTARY);    // .. Reset 
-  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_CYCLE4);       // .. Next
+  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_MOMENTARY);       // .. Next
 
   uint8_t defaultStates[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
   keypad.setDefaultButtonStates(defaultStates);
@@ -69,21 +69,34 @@ void setup() {
 
 //----------------------------------------------------------------------------
 
-
 void loop() {
   keypad.process(); //must have this in main loop.
 
-  uint8_t data[5] = {0}; // initialize the data array
+  static bool prevButtonStates[12] = {0}; // initialize the previous button state array
+  static bool buttonToggled[12] = {0}; // initialize the button toggled array
+  static bool counterStates[12] = {0}; // initialize the counter state array
 
-  // set the button states in the data array
+  // check for button state changes and send messages over the CAN bus
   for(int i=0; i<12; i++) {
-    data[i/8] |= (keypad.buttonState[i+1] << (i%8));
-  }
+    if (keypad.buttonState[i+1] != prevButtonStates[i]) {
+      bool buttonState = keypad.buttonState[i+1];
+      prevButtonStates[i] = buttonState;
 
-  // send the data over the CAN bus
-  can_frame frame;
-  frame.can_id = 0x200;
-  frame.can_dlc = 5;
-  memcpy(frame.data, data, 5);
-  mcp2515.sendMessage(&frame);
+      // check if the button state has changed
+      if (buttonState != buttonToggled[i]) {
+        buttonToggled[i] = buttonState;
+
+        // if the button state has gone from 0 to 1, toggle the counter state
+        if (buttonState == true) {
+          counterStates[i] = !counterStates[i];
+        }
+
+        can_frame frame;
+        frame.can_id = 0x300 + i; // use unique CAN ID for each button
+        frame.can_dlc = 1;
+        frame.data[0] = counterStates[i] ? 1 : 0; // send 1 if the counter state is true, else send 0
+        mcp2515.sendMessage(&frame);
+      }
+    }
+  }
 }
