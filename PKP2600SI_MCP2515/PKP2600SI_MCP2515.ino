@@ -78,8 +78,8 @@ void loop() {
 
   // check for button state changes and send messages over the CAN bus
   for(int i=0; i<12; i++) {
-    if (keypad.buttonState[i+1] != prevButtonStates[i]) {
-      bool buttonState = keypad.buttonState[i+1];
+    if (keypad.buttonState[i] != prevButtonStates[i]) {
+      bool buttonState = keypad.buttonState[i];
       prevButtonStates[i] = buttonState;
 
       // check if the button state has changed
