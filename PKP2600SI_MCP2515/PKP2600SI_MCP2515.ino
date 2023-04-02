@@ -67,14 +67,15 @@ void setup() {
   keypad.begin(CAN_250KBPS, MCP_8MHZ); //These are MCP settings to be passed  
 }
 
-//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------new
 
 void loop() {
   keypad.process(); //must have this in main loop.
 
   static bool prevButtonStates[12] = {0}; // initialize the previous button state array
   static bool buttonToggled[12] = {0}; // initialize the button toggled array
-  static bool counterStates[12] = {0}; // initialize the counter state array
+  static int counterStates[12] = {0}; // initialize the counter state array to 0
+  static int counterStates1[12] = {0}; // initialize the counter state array to 0
 
   // check for button state changes and send messages over the CAN bus
   for(int i=0; i<12; i++) {
@@ -86,17 +87,21 @@ void loop() {
       if (buttonState != buttonToggled[i]) {
         buttonToggled[i] = buttonState;
 
-        // if the button state has gone from 0 to 1, toggle the counter state
+        // if the button state has gone from 0 to 1, increment the counter state
         if (buttonState == true) {
-          counterStates[i] = !counterStates[i];
+          counterStates[i] = (counterStates[i] + 1) % 2;     //.. (if % 4 its off-on-on-on) (if % 3 its off-on-on) (if % 2 its off-on) 1bit
+          counterStates1[i] = (counterStates1[i] + 1) % 4;     //.. (if % 4 its off-on-on-on) (if % 3 its off-on-on) (if % 2 its off-on) 2bit
         }
 
         can_frame frame;
-        frame.can_id = 0x300 + i; // use unique CAN ID for each button
+        frame.can_id = 0x300 + i; // use unique CAN ID for each button (1=0x300 ,2=0x301 ,3=0x302 ,4=0x303 ,5=0x304 ,6=0x305 ,7=0x306 ,8=0x307 ,9=0x308 ,10=0x309 ,11=0x30A ,12=0x30B)
         frame.can_dlc = 1;
-        frame.data[0] = counterStates[i] ? 1 : 0; // send 1 if the counter state is true, else send 0
+        frame.data[0] = counterStates[i]; // send the counter state
+        frame.data[0] = counterStates1[i]; // send the counter state
         mcp2515.sendMessage(&frame);
       }
     }
   }
 }
+
+//----------------------------------------------------------------------------new
