@@ -49,7 +49,7 @@ void setup() {
   keypad.setKeyColor(PKP_KEY_12, colors1, blinks1);
 
   keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_MOMENTARY);        // ... master on/off 
-  keypad.setKeyMode(PKP_KEY_2, BUTTON_MODE_MOMENTARY);     // ... Starter
+  keypad.setKeyMode(PKP_KEY_2, BUTTON_MODE_MOMENTARY);        // ... Starter
   keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_MOMENTARY);        // ... Light
   keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_MOMENTARY);        // ... LED
   keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_MOMENTARY);        // ... FAN
@@ -58,7 +58,7 @@ void setup() {
   keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_MOMENTARY);        // .. Radio
   keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_MOMENTARY);        // .. AIR
   keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_MOMENTARY);       // .. Boost
-  keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_MOMENTARY);    // .. Reset 
+  keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_MOMENTARY);       // .. Reset 
   keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_MOMENTARY);       // .. Next
 
   uint8_t defaultStates[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
@@ -90,9 +90,9 @@ void loop() {
 
         // if the button state has gone from 0 to 1, increment the counters
         if (buttonState == true) {
-          counterStates[i] = (counterStates[i] + 1) % 2;        // extract the first counter (bit 0)
-          counterStates1[i] = (counterStates1[i] + 1) % 3;     // extract the second counter (bits 2-4)
-          counterStates2[i] = (counterStates2[i] + 1) % 4;     // extract the third counter (bits 5-7)
+          counterStates[i] = (counterStates[i] + 1) % 2;        // extract the first counter (bit 0)     for off/no1
+          counterStates1[i] = (counterStates1[i] + 1) % 3;     // extract the second counter (bits 2-4)  for off/no1/no2
+          counterStates2[i] = (counterStates2[i] + 1) % 4;     // extract the third counter (bits 5-7)   for off/on1/on2/on3
         }
 
         can_frame frame;
