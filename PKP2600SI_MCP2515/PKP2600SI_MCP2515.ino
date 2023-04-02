@@ -74,7 +74,9 @@ void loop() {
 
   static bool prevButtonStates[12] = {0}; // initialize the previous button state array
   static bool buttonToggled[12] = {0}; // initialize the button toggled array
-  static int counterStates[12] = {0}; // initialize the counter state array to 0
+  static int counterStates[12] = {0}; // initialize the first counter state array to 0
+  static int counterStates1[12] = {0}; // initialize the second counter state array to 0
+  static int counterStates2[12] = {0}; // initialize the third counter state array to 0
 
   // check for button state changes and send messages over the CAN bus
   for(int i=0; i<12; i++) {
@@ -86,20 +88,22 @@ void loop() {
       if (buttonState != buttonToggled[i]) {
         buttonToggled[i] = buttonState;
 
-        // if the button state has gone from 0 to 1, increment the counter state
+        // if the button state has gone from 0 to 1, increment the counters
         if (buttonState == true) {
-          counterStates[i] = (counterStates[i] + 1) % 4;     //.. (if % 4 its off-on-on-on)  but (1bit or OFF/ON) (2bit or OFF/ON/ON/ON)
-
+          counterStates[i] = (counterStates[i] + 1) % 2;        // extract the first counter (bit 0)
+          counterStates1[i] = (counterStates1[i] + 1) % 3;     // extract the second counter (bits 2-4)
+          counterStates2[i] = (counterStates2[i] + 1) % 4;     // extract the third counter (bits 5-7)
         }
 
         can_frame frame;
         frame.can_id = 0x300 + i; // use unique CAN ID for each button (1=0x300 ,2=0x301 ,3=0x302 ,4=0x303 ,5=0x304 ,6=0x305 ,7=0x306 ,8=0x307 ,9=0x308 ,10=0x309 ,11=0x30A ,12=0x30B)
-        frame.can_dlc = 1;
-        frame.data[0] = counterStates[i]; // send the counter state
+        frame.can_dlc = 1; // send one byte of data
+        frame.data[0] = counterStates[i] | (counterStates1[i] << 2) | (counterStates2[i] << 5); // combine the counters into a single byte
         mcp2515.sendMessage(&frame);
       }
     }
   }
 }
+
 
 //----------------------------------------------------------------------------new
