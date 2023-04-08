@@ -28,7 +28,11 @@ void setup() {
   //Set Key color and blink states
   uint8_t colors1[4] = {PKP_KEY_BLANK,PKP_KEY_RED,PKP_KEY_BLANK,PKP_KEY_BLANK}; //array for the 4 possible button states' respective colors
   uint8_t blinks1[4] = {PKP_KEY_BLANK,PKP_KEY_BLANK,PKP_KEY_BLANK,PKP_KEY_BLANK};
+
   colors1[1] = PKP_KEY_GREEN;
+  colors1[2] = PKP_KEY_CYAN;
+  colors1[3] = PKP_KEY_BLUE;
+  
   keypad.setKeyColor(PKP_KEY_1, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_2, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_3, colors1, blinks1);
@@ -38,28 +42,22 @@ void setup() {
   keypad.setKeyColor(PKP_KEY_7, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_8, colors1, blinks1);
   keypad.setKeyColor(PKP_KEY_9, colors1, blinks1);
-  colors1[1] = PKP_KEY_GREEN;
-  colors1[2] = PKP_KEY_CYAN;
   keypad.setKeyColor(PKP_KEY_10, colors1, blinks1);
-  colors1[1] = PKP_KEY_GREEN;  
   keypad.setKeyColor(PKP_KEY_11, colors1, blinks1);
-  colors1[1] = PKP_KEY_GREEN;
-  colors1[2] = PKP_KEY_CYAN;
-  colors1[3] = PKP_KEY_BLUE;   
   keypad.setKeyColor(PKP_KEY_12, colors1, blinks1);
 
   keypad.setKeyMode(PKP_KEY_1, BUTTON_MODE_TOGGLE);        // ... master on/off 
   keypad.setKeyMode(PKP_KEY_2, BUTTON_MODE_MOMENTARY);        // ... Starter
   keypad.setKeyMode(PKP_KEY_3, BUTTON_MODE_TOGGLE);        // ... Light
-  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_TOGGLE);        // ... LED
+  keypad.setKeyMode(PKP_KEY_4, BUTTON_MODE_CYCLE3);        // ... LED1 LED2
   keypad.setKeyMode(PKP_KEY_5, BUTTON_MODE_TOGGLE);        // ... FAN
   keypad.setKeyMode(PKP_KEY_6, BUTTON_MODE_TOGGLE);        // ... AUX
   keypad.setKeyMode(PKP_KEY_7, BUTTON_MODE_TOGGLE);        // ... Dash LOG
   keypad.setKeyMode(PKP_KEY_8, BUTTON_MODE_TOGGLE);        // .. Radio
   keypad.setKeyMode(PKP_KEY_9, BUTTON_MODE_TOGGLE);        // .. AIR
-  keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_CYCLE3);       // .. Boost
+  keypad.setKeyMode(PKP_KEY_10, BUTTON_MODE_TOGGLE);       // .. Boost
   keypad.setKeyMode(PKP_KEY_11, BUTTON_MODE_MOMENTARY);       // .. Reset 
-  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_CYCLE4);       // .. Next
+  keypad.setKeyMode(PKP_KEY_12, BUTTON_MODE_CYCLE4);       // .. Next Page0 Page1 Page2 Page3
 
   uint8_t defaultStates[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
   keypad.setDefaultButtonStates(defaultStates);
@@ -72,38 +70,24 @@ void setup() {
 void loop() {
   keypad.process(); //must have this in main loop.
 
-  static bool prevButtonStates[12] = {0}; // initialize the previous button state array
-  static bool buttonToggled[12] = {0}; // initialize the button toggled array
-  static int counterStates[12] = {0}; // initialize the first counter state array to 0
-  static int counterStates1[12] = {0}; // initialize the second counter state array to 0
-  static int counterStates2[12] = {0}; // initialize the third counter state array to 0
+  static uint8_t prevButtonStates[12] = {0}; // initialize the previous button state array
 
   // check for button state changes and send messages over the CAN bus
   for(int i=0; i<12; i++) {
     if (keypad.buttonState[i] != prevButtonStates[i]) {
-      bool buttonState = keypad.buttonState[i];
+      uint8_t buttonState = keypad.buttonState[i];
       prevButtonStates[i] = buttonState;
 
-      // check if the button state has changed
-      if (buttonState != buttonToggled[i]) {
-        buttonToggled[i] = buttonState;
+      // Pack the state value into two bits (bits 0-1)
+      uint8_t data = (buttonState & 0x03);
 
-        // if the button state has gone from 0 to 1, increment the counters
-        if (buttonState == true) {
-          counterStates[i] = (counterStates[i] + 1) % 2;        // extract the first counter (bit 0)     for off/no1
-          counterStates1[i] = (counterStates1[i] + 1) % 3;     // extract the second counter (bits 2-4)  for off/no1/no2
-          counterStates2[i] = (counterStates2[i] + 1) % 4;     // extract the third counter (bits 5-7)   for off/on1/on2/on3
-        }
-
-        can_frame frame;
-        frame.can_id = 0x300 + i; // use unique CAN ID for each button (1=0x300 ,2=0x301 ,3=0x302 ,4=0x303 ,5=0x304 ,6=0x305 ,7=0x306 ,8=0x307 ,9=0x308 ,10=0x309 ,11=0x30A ,12=0x30B)
-        frame.can_dlc = 1; // send one byte of data
-        frame.data[0] = counterStates[i] | (counterStates1[i] << 2) | (counterStates2[i] << 5); // combine the counters into a single byte
-        mcp2515.sendMessage(&frame);
-      }
+      can_frame frame;
+      frame.can_id = 0x300 + i; // use unique CAN ID for each button (1=0x300 ,2=0x301 ,3=0x302 ,4=0x303 ,5=0x304 ,6=0x305 ,7=0x306 ,8=0x307 ,9=0x308 ,10=0x309 ,11=0x30A ,12=0x30B)
+      frame.can_dlc = 2; // send two bytes of data
+      frame.data[0] = data; // send the button state as the data
+      mcp2515.sendMessage(&frame);
     }
   }
 }
-
 
 //----------------------------------------------------------------------------new
