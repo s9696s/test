@@ -36,9 +36,9 @@
 #define PKP_BACKLIGHT_BLUE        (0x03)
 #define PKP_BACKLIGHT_YELLOW      (0x04)
 #define PKP_BACKLIGHT_CYAN        (0x05)
-#define PKP_BACKLIGHT_VIOLET      (0x06)
+#define PKP_BACKLIGHT_VIOLET      (0x08) //<.... 
 #define PKP_BACKLIGHT_WHITE       (0x07)
-#define PKP_BACKLIGHT_AMBER       (0x08)
+#define PKP_BACKLIGHT_AMBER       (0x06) //<.... 
 #define PKP_BACKLIGHT_YELLOWGREEN (0x09)
 
 #define PKP_KEY_1  0
