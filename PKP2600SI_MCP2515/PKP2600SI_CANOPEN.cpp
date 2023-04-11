@@ -511,7 +511,7 @@ void CANKeypad::checkForKeypad(){
 
     //set all button states back to default button states as a safety feature
     for(int i=0;i<12;i++){
-      buttonState[i]=_defaultButtonState[i];
+     // buttonState[i]=_defaultButtonState[i];
     }
   }
 }
